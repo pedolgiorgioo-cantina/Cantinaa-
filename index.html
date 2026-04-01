@@ -3,40 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro Bodega Alta Precisión</title>
+    <title>Registro Bodega Pro</title>
     <style>
-        :root { --gold: #f39c12; --bg: #000; --card: #1a1a1a; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: white; padding: 15px; margin: 0; }
-        .container { max-width: 100%; margin: auto; }
-        h1 { color: var(--gold); font-size: 20px; text-align: center; margin-bottom: 15px; text-transform: uppercase; letter-spacing: 2px; }
-        #status { color: #00ff00; font-weight: bold; text-align: center; margin-bottom: 20px; min-height: 50px; font-size: 16px; border: 2px solid #333; padding: 10px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: #080808; }
-        .controls { display: flex; flex-direction: column; gap: 12px; margin-bottom: 25px; }
-        .btn { padding: 22px; border-radius: 15px; border: none; font-weight: 800; cursor: pointer; font-size: 18px; width: 100%; text-transform: uppercase; }
-        .btn-start { background: var(--gold); color: black; }
-        .btn-start.active { background: #ff0000; color: white; box-shadow: 0 0 30px rgba(255,0,0,0.4); animation: pulse 1.5s infinite; }
-        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.7; } 100% { opacity: 1; } }
-        .btn-export { background: #27ae60; color: white; }
-        .day-container { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }
-        .day-title { font-size: 13px; color: #888; margin-bottom: 12px; font-weight: bold; text-align: center; }
+        :root { --gold: #d4af37; --bg: #0a0a0a; --card: #161616; --red: #e74c3c; --green: #2ecc71; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: #e0e0e0; padding: 10px; margin: 0; -webkit-font-smoothing: antialiased; }
+        .container { max-width: 500px; margin: auto; }
+        
+        h1 { color: var(--gold); font-size: 18px; text-align: center; margin: 15px 0; text-transform: uppercase; letter-spacing: 3px; font-weight: 300; }
+        
+        #status { font-size: 12px; text-align: center; margin-bottom: 15px; min-height: 35px; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px; text-transform: uppercase; }
+
+        /* Pulsanti piccoli e puliti */
+        .btn-group { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
+        .btn { padding: 10px 15px; border-radius: 8px; border: 1px solid #333; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s; background: #1a1a1a; color: white; display: flex; align-items: center; gap: 5px; }
+        .btn-start.active { background: var(--red); border-color: var(--red); box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); }
+        .btn-export { border-color: var(--green); color: var(--green); }
+        
+        /* Tabella minimalista */
+        .day-container { background: var(--card); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
+        .day-title { font-size: 11px; color: var(--gold); margin-bottom: 8px; font-weight: bold; opacity: 0.6; }
         table { width: 100%; border-collapse: collapse; }
-        td { padding: 18px 5px; border-bottom: 1px solid #2a2a2a; }
-        .wine-name { text-transform: uppercase; font-size: 15px; font-weight: 700; width: 55%; color: #eee; }
-        .marks { color: var(--gold); letter-spacing: 5px; font-family: 'Courier New', monospace; font-size: 24px; text-align: center; }
-        .total { text-align: right; font-weight: 900; color: var(--gold); width: 40px; font-size: 22px; }
+        td { padding: 10px 4px; border-bottom: 1px solid #222; }
+        .wine-name { text-transform: capitalize; font-size: 14px; font-weight: 500; color: #ccc; }
+        .marks { color: var(--gold); letter-spacing: 2px; font-family: monospace; font-size: 16px; text-align: center; width: 30%; }
+        .total { text-align: right; font-weight: bold; color: white; width: 30px; font-size: 14px; background: #222; border-radius: 4px; padding: 2px 6px; }
+
+        /* Tasto Elimina in fondo */
+        .danger-zone { margin-top: 30px; text-align: center; border-top: 1px dashed #333; padding-top: 20px; }
+        .btn-delete { background: transparent; color: #666; border: 1px solid #333; font-size: 11px; padding: 8px 12px; text-transform: uppercase; margin: auto; }
+        .btn-delete:active { background: var(--red); color: white; border-color: var(--red); }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🍷 REGISTRO PRECISO</h1>
-    <div id="status">SISTEMA PRONTO<br>Premi il tasto arancione</div>
+    <h1>Bodega Personal</h1>
+    <div id="status">Sistema pronto</div>
 
-    <div class="controls">
-        <button id="micBtn" class="btn btn-start" onclick="toggleListening()">🎤 ATTIVA ASCOLTO</button>
-        <button class="btn btn-export" onclick="exportToCSV()">📊 SCARICA EXCEL</button>
+    <div class="btn-group">
+        <button id="micBtn" class="btn btn-start" onclick="toggleListening()">🎤 MIC</button>
+        <button class="btn btn-export" onclick="exportToCSV()">📊 EXCEL</button>
     </div>
 
     <div id="mainLog"></div>
+
+    <div class="danger-zone">
+        <button class="btn btn-delete" onclick="clearData()">🗑️ Elimina tutti i contenuti</button>
+    </div>
 </div>
 
 <script>
@@ -55,42 +68,37 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.frequency.value = 1000; gain.gain.value = 0.1;
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
+        osc.frequency.value = 1000; gain.gain.value = 0.05;
+        osc.start(); osc.stop(audioCtx.currentTime + 0.05);
     }
 
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'es-ES';
     recognition.continuous = true;
-    recognition.interimResults = false;
-    recognition.maxAlternatives = 1;
 
     recognition.onresult = (event) => {
         const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-        const confidenza = event.results[event.results.length - 1][0].confidence;
         const hoy = new Date().toLocaleDateString('es-ES');
         
-        // LOGICA DI CORRISPONDENZA ESATTA
-        // Il sistema accetta la parola SOLO se è identica a una in lista
-        if (MIEI_VINI.includes(result) && confidenza > 0.8) {
+        if (MIEI_VINI.includes(result)) {
             if (!db[hoy]) db[hoy] = {};
             db[hoy][result] = (db[hoy][result] || 0) + 1;
-            document.getElementById('status').innerHTML = `<span style="color:#00ff00">OK: ${result.toUpperCase()}</span>`;
+            document.getElementById('status').innerHTML = `<span style="color:var(--green)">Registrato: ${result}</span>`;
             playBeep();
             localStorage.setItem('cantina_dati', JSON.stringify(db));
             render();
         } else {
-            document.getElementById('status').innerHTML = `<span style="color:#ff0000">SCARTATO: "${result}"</span><br><small>Dì esattamente il nome</small>`;
+            document.getElementById('status').innerHTML = `Sconosciuto: "${result}"`;
         }
     };
 
     function render() {
         const log = document.getElementById('mainLog');
         log.innerHTML = "";
-        const fechas = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
+        const dates = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
 
-        fechas.forEach(data => {
-            let html = `<div class="day-container"><div class="day-title">DATA: ${data}</div><table>`;
+        dates.forEach(data => {
+            let html = `<div class="day-container"><div class="day-title">${data}</div><table>`;
             for (let v in db[data]) {
                 html += `<tr><td class="wine-name">${v}</td><td class="marks">${"X".repeat(db[data][v])}</td><td class="total">${db[data][v]}</td></tr>`;
             }
@@ -102,11 +110,18 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const btn = document.getElementById('micBtn');
         if (btn.classList.contains('active')) {
-            recognition.stop(); btn.classList.remove('active'); btn.innerText = "🎤 ATTIVA ASCOLTO";
-            document.getElementById('status').innerText = "SISTEMA IN PAUSA";
+            recognition.stop(); btn.classList.remove('active'); btn.innerText = "🎤 MIC";
         } else {
-            recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 ASCOLTO ATTIVO";
-            document.getElementById('status').innerText = "DÌ IL NOME DEL VINO...";
+            recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 STOP";
+        }
+    }
+
+    function clearData() {
+        if (confirm("Vuoi davvero cancellare tutto lo storico?")) {
+            db = {};
+            localStorage.removeItem('cantina_dati');
+            render();
+            document.getElementById('status').innerText = "Dati eliminati";
         }
     }
 
@@ -116,7 +131,7 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "inventario_bodega.csv";
+        link.download = "bodega.csv";
         link.click();
     }
     render();
