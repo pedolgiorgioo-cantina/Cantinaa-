@@ -3,255 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bodegas Reverón | Registro Profesional</title>
+    <title>Bodegas Reverón | Gestión de Existencias</title>
     <style>
         :root {
             --gold: #c5a059;
-            --gold-dark: #8e6d2d;
             --bg: #050505;
             --card: #121212;
             --text: #e0e0e0;
-            --red: #ff4757;
-            --green: #2ed573;
+            --blue: #3498db;  /* Entradas */
+            --green: #2ecc71; /* Ventas */
+            --red: #e74c3c;   /* Bajas/Roturas */
         }
 
         body {
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
             background-color: var(--bg);
             color: var(--text);
-            margin: 0;
-            padding: 0;
-            display: flex;
-            justify-content: center;
+            margin: 0; padding: 10px;
         }
 
-        .app-container {
-            width: 100%;
-            max-width: 480px;
-            min-height: 100vh;
-            background: var(--bg);
-            padding-bottom: 50px;
-        }
+        .container { max-width: 500px; margin: auto; }
 
-        /* CABECERA MINIMALISTA */
         .header {
-            text-align: center;
-            padding: 40px 20px;
-            background: linear-gradient(180deg, #151515 0%, #050505 100%);
-            border-bottom: 1px solid #222;
+            text-align: center; padding: 25px 0;
+            background: linear-gradient(180deg, #111 0%, #050505 100%);
+            border-bottom: 1px solid #222; border-radius: 0 0 20px 20px;
         }
+        .logo-img { width: 160px; filter: invert(1) brightness(1.5); }
 
-        .logo-img {
-            width: 180px;
-            height: auto;
-            filter: invert(1) brightness(1.5) contrast(1.2);
-            margin-bottom: 10px;
+        /* SELEZIONE OPERAZIONE */
+        .mode-selector {
+            display: grid; grid-template-columns: 1fr 1fr 1fr;
+            gap: 8px; margin: 20px 0;
         }
-
-        .brand-subtitle {
-            color: var(--gold);
-            font-size: 10px;
-            letter-spacing: 5px;
-            text-transform: uppercase;
-            font-weight: 300;
+        .mode-btn {
+            padding: 12px 5px; border-radius: 10px; border: 1px solid #333;
+            background: #111; color: #777; font-size: 10px; font-weight: bold;
+            cursor: pointer; text-transform: uppercase; transition: 0.3s;
         }
+        .mode-btn.active[data-mode="ENTRADA"] { background: var(--blue); color: white; border-color: var(--blue); box-shadow: 0 0 15px rgba(52,152,219,0.3); }
+        .mode-btn.active[data-mode="VENTA"] { background: var(--green); color: white; border-color: var(--green); box-shadow: 0 0 15px rgba(46,204,113,0.3); }
+        .mode-btn.active[data-mode="BAJA"] { background: var(--red); color: white; border-color: var(--red); box-shadow: 0 0 15px rgba(231,76,60,0.3); }
 
-        /* PANEL DE ESTADO */
-        .status-panel {
-            padding: 20px;
-            text-align: center;
-            min-height: 60px;
+        /* MIC E STATO */
+        .mic-section { text-align: center; margin-bottom: 25px; }
+        #status-msg { font-size: 12px; color: var(--gold); margin-bottom: 15px; height: 20px; letter-spacing: 1px; }
+        .btn-mic {
+            width: 70px; height: 70px; border-radius: 50%; border: 2px solid #333;
+            background: #1a1a1a; font-size: 24px; cursor: pointer; transition: 0.3s;
         }
+        .btn-mic.recording { border-color: var(--red); background: #300; animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.08); } 100% { transform: scale(1); } }
 
-        #status-msg {
-            font-size: 13px;
-            letter-spacing: 1px;
-            color: #888;
-            text-transform: uppercase;
-        }
-
-        /* BOTONES DE ACCIÓN */
-        .controls {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            padding: 0 20px 30px;
-        }
-
-        .btn-main {
-            border: 1px solid #333;
-            padding: 15px 25px;
-            border-radius: 50px;
-            background: #111;
-            color: white;
-            font-weight: 600;
-            font-size: 12px;
-            letter-spacing: 1px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .btn-mic.active {
-            background: var(--red);
-            border-color: var(--red);
-            box-shadow: 0 0 20px rgba(255, 71, 87, 0.4);
-            animation: pulse 1.5s infinite;
-        }
-
-        @keyframes pulse {
-            0% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-
-        /* LISTA DE VINOS (HELP) */
-        .wine-helper {
-            padding: 0 20px 20px;
-        }
-
-        details {
-            background: var(--card);
-            border-radius: 12px;
-            border: 1px solid #222;
-        }
-
-        summary {
-            padding: 15px;
-            color: var(--gold);
-            font-size: 11px;
-            font-weight: bold;
-            text-align: center;
-            list-style: none;
-            cursor: pointer;
-        }
-
-        .wine-grid {
-            padding: 15px;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
-            border-top: 1px solid #222;
-            font-size: 11px;
-            color: #777;
-        }
-
-        /* REGISTROS DIARIOS */
-        .log-section {
-            padding: 0 20px;
-        }
-
+        /* TABELLE REGISTRO */
         .day-card {
-            background: var(--card);
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border: 1px solid #222;
+            background: var(--card); border-radius: 15px; padding: 15px;
+            margin-bottom: 20px; border: 1px solid #222;
         }
+        .day-title { color: var(--gold); font-size: 12px; font-weight: bold; text-align: center; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 8px; }
+        
+        table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        th { color: #555; font-size: 10px; text-align: left; padding: 5px; text-transform: uppercase; }
+        td { padding: 10px 5px; border-bottom: 1px solid #1a1a1a; }
+        
+        .col-vino { text-transform: uppercase; font-weight: 500; width: 50%; }
+        .col-mode { font-size: 10px; font-weight: bold; }
+        .mode-E { color: var(--blue); } .mode-V { color: var(--green); } .mode-B { color: var(--red); }
+        .col-qty { font-weight: bold; text-align: right; color: var(--white); font-size: 16px; }
 
-        .day-header {
-            color: var(--gold);
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #222;
-            padding-bottom: 10px;
-            text-align: center;
-        }
-
-        .entry-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #1a1a1a;
-        }
-
-        .entry-name {
-            font-size: 13px;
-            font-weight: 500;
-            text-transform: uppercase;
-            flex: 1;
-        }
-
-        .entry-controls {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-minus {
-            background: #222;
-            border: 1px solid #333;
-            color: #555;
-            width: 24px;
-            height: 24px;
-            border-radius: 6px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-        }
-
-        .entry-qty {
-            font-size: 18px;
-            font-weight: 700;
-            color: var(--gold);
-            min-width: 25px;
-            text-align: center;
-        }
-
-        .footer {
-            margin-top: 50px;
-            text-align: center;
-            padding: 20px;
-            opacity: 0.3;
-        }
-
-        .btn-clear {
-            background: none;
-            border: none;
-            color: white;
-            font-size: 10px;
-            text-decoration: underline;
-            cursor: pointer;
+        .btn-export {
+            width: 100%; padding: 15px; background: transparent; border: 1px solid var(--gold);
+            color: var(--gold); border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 20px;
         }
     </style>
 </head>
 <body>
 
-<div class="app-container">
+<div class="container">
     <div class="header">
         <img src="logo.png" alt="Bodegas Reverón" class="logo-img" onerror="this.style.display='none';">
-        <div class="brand-subtitle">Inventario de Almacén</div>
+        <div style="color:var(--gold); font-size:9px; letter-spacing:4px; margin-top:5px;">CONTROL DE MOVIMIENTOS</div>
     </div>
 
-    <div class="status-panel">
-        <div id="status-msg">Listo para registrar</div>
+    <div class="mode-selector">
+        <button class="mode-btn active" data-mode="VENTA" onclick="setMode('VENTA')">📦 Venta<br>(Salida)</button>
+        <button class="mode-btn" data-mode="ENTRADA" onclick="setMode('ENTRADA')">📥 Entrada<br>(Caja)</button>
+        <button class="mode-btn" data-mode="BAJA" onclick="setMode('BAJA')">🗑️ Baja<br>(Rotura)</button>
     </div>
 
-    <div class="controls">
-        <button id="micBtn" class="btn-main btn-mic" onclick="toggleListening()">
-            <span>🎤</span> <span id="btnText">ACTIVAR MIC</span>
-        </button>
-        <button class="btn-main" onclick="exportToCSV()" style="border-color: var(--green); color: var(--green);">
-            <span>📊</span> EXCEL
-        </button>
+    <div class="mic-section">
+        <div id="status-msg">LISTO</div>
+        <button id="micBtn" class="btn-mic" onclick="toggleMic()">🎤</button>
     </div>
 
-    <div class="wine-helper">
-        <details>
-            <summary>CATÁLOGO DE REFERENCIA</summary>
-            <div id="wine-list" class="wine-grid"></div>
-        </details>
-    </div>
+    <div id="log-container"></div>
 
-    <div id="main-log" class="log-section"></div>
-
-    <div class="footer">
-        <button class="btn-clear" onclick="clearAll()">BORRAR TODO EL REGISTRO</button>
+    <button class="btn-export" onclick="exportToCSV()">📊 DESCARGAR EXCEL (SAGE)</button>
+    
+    <div style="text-align:center; margin-top:40px;">
+        <button onclick="clearAll()" style="background:none; border:none; color:#333; font-size:10px; text-decoration:underline;">BORRAR TODO IL REGISTRO</button>
     </div>
 </div>
 
@@ -264,109 +114,95 @@
         "rosado afrutado", "naturalmente dulce"
     ];
 
-    // Cargar datos
-    let db = JSON.parse(localStorage.getItem('bodega_db')) || {};
+    let db = JSON.parse(localStorage.getItem('bodega_pro_db')) || [];
+    let currentMode = "VENTA";
 
-    // Iniciar catálogo
-    const grid = document.getElementById('wine-list');
-    [...VINOS].sort().forEach(v => grid.innerHTML += `<div>• ${v.toUpperCase()}</div>`);
-
-    // Audio de confirmación
-    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    function beep(success = true) {
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.frequency.value = success ? 880 : 220;
-        gain.gain.value = 0.03;
-        osc.start(); osc.stop(audioCtx.currentTime + 0.1);
-    }
-
-    // Reconocimiento de Voz
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
     recognition.lang = 'es-ES';
     recognition.continuous = true;
 
+    function setMode(mode) {
+        currentMode = mode;
+        document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector(`.mode-btn[data-mode="${mode}"]`).classList.add('active');
+    }
+
+    function toggleMic() {
+        const btn = document.getElementById('micBtn');
+        if (btn.classList.contains('recording')) {
+            recognition.stop();
+            btn.classList.remove('recording');
+            document.getElementById('status-msg').innerText = "PAUSADO";
+        } else {
+            recognition.start();
+            btn.classList.add('recording');
+            document.getElementById('status-msg').innerText = "ESCUCHANDO " + currentMode + "...";
+        }
+    }
+
     recognition.onresult = (event) => {
         const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-        const hoy = new Date().toLocaleDateString('es-ES');
         
         if (VINOS.includes(result)) {
-            if (!db[hoy]) db[hoy] = {};
-            db[hoy][result] = (db[hoy][result] || 0) + 1;
-            document.getElementById('status-msg').innerHTML = `<span style="color:var(--green)">+1 ${result}</span>`;
-            beep(true);
+            const entry = {
+                fecha: new Date().toLocaleDateString('es-ES'),
+                hora: new Date().toLocaleTimeString('es-ES', {hour: '2-digit', minute:'2-digit'}),
+                vino: result,
+                tipo: currentMode,
+                cantidad: currentMode === "ENTRADA" ? 6 : 1 // 6 si es caja, 1 si es venta/baja
+            };
+            db.unshift(entry);
             save();
             render();
+            document.getElementById('status-msg').innerHTML = `<span style="color:var(--green)">REGISTRADO: ${result}</span>`;
         } else {
-            document.getElementById('status-msg').innerHTML = `<span style="color:#666">"${result}" no detectado</span>`;
-            beep(false);
+            document.getElementById('status-msg').innerHTML = `<span style="color:var(--red)">"${result}" NO RECONOCIDO</span>`;
         }
     };
 
-    function toggleListening() {
-        if (audioCtx.state === 'suspended') audioCtx.resume();
-        const btn = document.getElementById('micBtn');
-        const txt = document.getElementById('btnText');
-        if (btn.classList.contains('active')) {
-            recognition.stop();
-            btn.classList.remove('active');
-            txt.innerText = "ACTIVAR MIC";
-        } else {
-            recognition.start();
-            btn.classList.add('active');
-            txt.innerText = "DETENER";
-        }
-    }
-
-    function removeOne(fecha, vino) {
-        if (db[fecha][vino] > 0) {
-            db[fecha][vino]--;
-            if (db[fecha][vino] === 0) delete db[fecha][vino];
-            save();
-            render();
-        }
-    }
-
-    function save() { localStorage.setItem('bodega_db', JSON.stringify(db)); }
+    function save() { localStorage.setItem('bodega_pro_db', JSON.stringify(db)); }
 
     function render() {
-        const log = document.getElementById('main-log');
-        log.innerHTML = "";
-        const dates = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
+        const container = document.getElementById('log-container');
+        container.innerHTML = "";
         
-        dates.forEach(d => {
-            let html = `<div class="day-card"><div class="day-header">${d}</div>`;
-            const sortedVinos = Object.keys(db[d]).sort();
-            sortedVinos.forEach(v => {
-                html += `
-                <div class="entry-row">
-                    <div class="entry-name">${v}</div>
-                    <div class="entry-controls">
-                        <button class="btn-minus" onclick="removeOne('${d}', '${v}')">−</button>
-                        <div class="entry-qty">${db[d][v]}</div>
-                    </div>
-                </div>`;
+        // Raggruppa per data
+        const groups = db.reduce((acc, item) => {
+            if (!acc[item.fecha]) acc[item.fecha] = [];
+            acc[item.fecha].push(item);
+            return acc;
+        }, {});
+
+        for (let date in groups) {
+            let html = `<div class="day-card"><div class="day-title">${date}</div><table>`;
+            html += `<tr><th>Hora</th><th>Vino</th><th>Tipo</th><th>Cant.</th></tr>`;
+            groups[date].forEach(item => {
+                const modeClass = item.tipo === 'ENTRADA' ? 'mode-E' : (item.tipo === 'VENTA' ? 'mode-V' : 'mode-B');
+                const modeSymbol = item.tipo === 'ENTRADA' ? '📥' : (item.tipo === 'VENTA' ? '📦' : '🗑️');
+                html += `<tr>
+                    <td style="color:#666; font-size:11px;">${item.hora}</td>
+                    <td class="col-vino">${item.vino}</td>
+                    <td class="col-mode ${modeClass}">${modeSymbol} ${item.tipo}</td>
+                    <td class="col-qty">${item.cantidad}</td>
+                </tr>`;
             });
-            log.innerHTML += html + `</div>`;
-        });
+            container.innerHTML += html + "</table></div>";
+        }
     }
 
     function exportToCSV() {
-        let csv = "sep=;\nFecha;Articulo;Cantidad\n";
-        for (let d in db) for (let v in db[d]) csv += `${d};${v.toUpperCase()};${db[d][v]}\n`;
+        let csv = "sep=;\nFecha;Hora;Vino;Operacion;Cantidad\n";
+        db.forEach(i => {
+            csv += `${i.fecha};${i.hora};${i.vino.toUpperCase()};${i.tipo};${i.cantidad}\n`;
+        });
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = `Inventario_Reveron.csv`;
+        link.download = `Inventario_Reveron_Sage.csv`;
         link.click();
     }
 
-    function clearAll() {
-        if (confirm("¿Eliminar todos los registros permanentemente?")) {
-            db = {}; save(); render();
-        }
-    }
+    function clearAll() { if(confirm("¿Borrar todo?")) { db = []; save(); render(); } }
 
     render();
 </script>
