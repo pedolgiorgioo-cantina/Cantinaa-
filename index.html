@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="it">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro Vocale Dinamico</title>
+    <title>Registro Bodega Oficial</title>
     <style>
         :root { --gold: #f39c12; --bg: #121212; --card: #1e1e1e; }
         body { font-family: sans-serif; background: var(--bg); color: white; padding: 15px; margin: 0; }
         .container { max-width: 100%; margin: auto; }
-        h1 { color: var(--gold); font-size: 22px; text-align: center; margin-bottom: 5px; text-transform: uppercase; }
+        h1 { color: var(--gold); font-size: 20px; text-align: center; margin-bottom: 5px; text-transform: uppercase; }
         #status { color: #f39c12; font-weight: bold; text-align: center; margin-bottom: 20px; min-height: 24px; font-size: 14px; border: 1px solid #333; padding: 10px; border-radius: 8px; background: #1a1a1a; }
         .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
         .btn { padding: 20px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 18px; width: 100%; }
@@ -16,29 +16,38 @@
         .btn-start.active { background: #e74c3c; color: white; box-shadow: 0 0 20px #e74c3c; }
         .btn-export { background: #27ae60; color: white; }
         .day-container { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--gold); }
-        .day-title { font-size: 15px; color: var(--gold); margin-bottom: 10px; font-weight: bold; opacity: 0.8; }
+        .day-title { font-size: 14px; color: var(--gold); margin-bottom: 10px; font-weight: bold; opacity: 0.8; }
         table { width: 100%; border-collapse: collapse; }
-        td { padding: 15px 5px; border-bottom: 1px solid #2a2a2a; font-size: 17px; }
-        .wine-name { text-transform: capitalize; font-weight: bold; width: 45%; }
-        .marks { color: var(--gold); letter-spacing: 4px; font-family: monospace; font-size: 20px; text-align: center; }
-        .total { text-align: right; font-weight: bold; color: #fff; width: 45px; font-size: 20px; }
+        td { padding: 15px 5px; border-bottom: 1px solid #2a2a2a; font-size: 16px; }
+        .wine-name { text-transform: capitalize; font-weight: bold; width: 50%; }
+        .marks { color: var(--gold); letter-spacing: 3px; font-family: monospace; font-size: 18px; text-align: center; }
+        .total { text-align: right; font-weight: bold; color: #fff; width: 40px; font-size: 18px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>🍷 REGISTRO VOCALE</h1>
-    <div id="status">Clicca per iniziare</div>
+    <h1>🍷 REGISTRO BODEGA</h1>
+    <div id="status">Microfono listo</div>
 
     <div class="controls">
-        <button id="micBtn" class="btn btn-start" onclick="toggleListening()">🎤 ATTIVA MICROFONO</button>
-        <button class="btn btn-export" onclick="exportToCSV()">📊 SCARICA EXCEL</button>
+        <button id="micBtn" class="btn btn-start" onclick="toggleListening()">🎤 ACTIVAR MICRÓFONO</button>
+        <button class="btn btn-export" onclick="exportToCSV()">📊 DESCARGAR EXCEL</button>
     </div>
 
     <div id="mainLog"></div>
 </div>
 
 <script>
+    // --- TU LISTA OFICIAL DE VINOS ---
+    const MIEI_VINI = [
+        "blanco tradicional", "blanco afrutado", "crianza 2022", "crianza 2019", 
+        "crianza 2016", "listan blanco barrica", "malvasía aromática", "tinto joven", 
+        "albillo criollo barrica", "albillo criollo joven", "los quemados", 
+        "baboso negro", "blanco reveron", "vérselo", "tinto barrica", 
+        "rosado afrutado", "naturalmente dulce"
+    ];
+
     let db = JSON.parse(localStorage.getItem('cantina_dati')) || {};
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
@@ -51,34 +60,28 @@
     }
 
     const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-    recognition.lang = 'it-IT';
+    recognition.lang = 'es-ES'; // Configurado en español para tu lista
     recognition.continuous = true;
 
     recognition.onresult = (event) => {
-        const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-        
-        // Pulizia della frase: cerchiamo di capire se ha detto un vino già esistente
-        const oggi = new Date().toLocaleDateString('it-IT');
-        if (!db[oggi]) db[oggi] = {};
+        const result = event.results[event.results.length - 1][0].transcript.toLowerCase();
+        const hoy = new Date().toLocaleDateString('es-ES');
+        if (!db[hoy]) db[hoy] = {};
 
-        let trovato = false;
-        // Controlla se la parola detta è già presente nel database di oggi
-        for (let vinoEsistente in db[oggi]) {
-            if (result.includes(vinoEsistente)) {
-                db[oggi][vinoEsistente]++;
-                trovato = true;
-                document.getElementById('status').innerText = "AGGIORNATO: " + vinoEsistente.toUpperCase();
-                break;
+        let encontrado = false;
+        MIEI_VINI.forEach(vino => {
+            if (result.includes(vino)) {
+                db[hoy][vino] = (db[hoy][vino] || 0) + 1;
+                document.getElementById('status').innerText = "REGISTRADO: " + vino.toUpperCase();
+                playBeep();
+                encontrado = true;
             }
+        });
+
+        if (!encontrado) {
+            document.getElementById('status').innerText = "Vino no reconocido...";
         }
 
-        // Se è una parola nuova, la aggiunge come nuova riga
-        if (!trovato) {
-            db[oggi][result] = 1;
-            document.getElementById('status').innerText = "NUOVO: " + result.toUpperCase();
-        }
-
-        playBeep();
         localStorage.setItem('cantina_dati', JSON.stringify(db));
         render();
     };
@@ -86,16 +89,12 @@
     function render() {
         const log = document.getElementById('mainLog');
         log.innerHTML = "";
-        const dateOrdinate = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
+        const fechas = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
 
-        dateOrdinate.forEach(data => {
-            let html = `<div class="day-container"><div class="day-title">DATA: ${data}</div><table>`;
-            for (let b in db[data]) {
-                html += `<tr>
-                    <td class="wine-name">${b}</td>
-                    <td class="marks">${"X".repeat(db[data][b])}</td>
-                    <td class="total">${db[data][b]}</td>
-                </tr>`;
+        fechas.forEach(data => {
+            let html = `<div class="day-container"><div class="day-title">FECHA: ${data}</div><table>`;
+            for (let v in db[data]) {
+                html += `<tr><td class="wine-name">${v}</td><td class="marks">${"X".repeat(db[data][v])}</td><td class="total">${db[data][v]}</td></tr>`;
             }
             log.innerHTML += html + `</table></div>`;
         });
@@ -105,19 +104,19 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const btn = document.getElementById('micBtn');
         if (btn.classList.contains('active')) {
-            recognition.stop(); btn.classList.remove('active'); btn.innerText = "🎤 ATTIVA MICROFONO";
+            recognition.stop(); btn.classList.remove('active'); btn.innerText = "🎤 ACTIVAR MICRÓFONO";
         } else {
-            recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 ASCOLTO ATTIVO...";
+            recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 ESCUCHANDO...";
         }
     }
 
     function exportToCSV() {
-        let csv = "Data;Bottiglia;Quantita\n";
-        for (let d in db) for (let b in db[d]) csv += `${d};${b};${db[d][b]}\n`;
+        let csv = "Fecha;Vino;Cantidad\n";
+        for (let d in db) for (let v in db[d]) csv += `${d};${v};${db[d][v]}\n`;
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "cantina.csv";
+        link.download = "inventario_bodega.csv";
         link.click();
     }
     render();
