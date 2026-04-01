@@ -3,42 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro Bodega Pro</title>
+    <title>Bodega Reveron - Registro</title>
     <style>
         :root { --gold: #d4af37; --bg: #0a0a0a; --card: #161616; --red: #e74c3c; --green: #2ecc71; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: #e0e0e0; padding: 10px; margin: 0; -webkit-font-smoothing: antialiased; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: #e0e0e0; padding: 10px; margin: 0; }
         .container { max-width: 500px; margin: auto; }
         
-        h1 { color: var(--gold); font-size: 18px; text-align: center; margin: 15px 0; text-transform: uppercase; letter-spacing: 3px; font-weight: 300; }
+        /* Logo Stile Pulito */
+        .header { text-align: center; margin: 20px 0; }
+        .logo-text { color: white; font-size: 24px; font-weight: bold; letter-spacing: 2px; margin: 0; }
+        .logo-sub { color: var(--gold); font-size: 10px; letter-spacing: 4px; text-transform: uppercase; margin-top: 5px; }
         
-        #status { font-size: 12px; text-align: center; margin-bottom: 15px; min-height: 35px; color: #888; border-bottom: 1px solid #222; padding-bottom: 10px; text-transform: uppercase; }
-
-        /* Pulsanti piccoli e puliti */
+        #status { font-size: 11px; text-align: center; margin-bottom: 15px; min-height: 30px; color: #888; text-transform: uppercase; }
+        
         .btn-group { display: flex; gap: 8px; justify-content: center; margin-bottom: 20px; }
-        .btn { padding: 10px 15px; border-radius: 8px; border: 1px solid #333; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s; background: #1a1a1a; color: white; display: flex; align-items: center; gap: 5px; }
-        .btn-start.active { background: var(--red); border-color: var(--red); box-shadow: 0 0 10px rgba(231, 76, 60, 0.3); }
+        .btn { padding: 10px 20px; border-radius: 8px; border: 1px solid #333; font-weight: 600; cursor: pointer; font-size: 13px; background: #1a1a1a; color: white; display: flex; align-items: center; gap: 5px; }
+        .btn-start.active { background: var(--red); border-color: var(--red); box-shadow: 0 0 10px rgba(231, 76, 60, 0.4); }
         .btn-export { border-color: var(--green); color: var(--green); }
         
-        /* Tabella minimalista */
-        .day-container { background: var(--card); border-radius: 10px; padding: 12px; margin-bottom: 10px; }
-        .day-title { font-size: 11px; color: var(--gold); margin-bottom: 8px; font-weight: bold; opacity: 0.6; }
+        .day-container { background: var(--card); border-radius: 10px; padding: 15px; margin-bottom: 10px; border: 1px solid #222; }
+        .day-title { font-size: 11px; color: var(--gold); margin-bottom: 12px; font-weight: bold; opacity: 0.6; text-align: center; }
+        
         table { width: 100%; border-collapse: collapse; }
-        td { padding: 10px 4px; border-bottom: 1px solid #222; }
-        .wine-name { text-transform: capitalize; font-size: 14px; font-weight: 500; color: #ccc; }
-        .marks { color: var(--gold); letter-spacing: 2px; font-family: monospace; font-size: 16px; text-align: center; width: 30%; }
-        .total { text-align: right; font-weight: bold; color: white; width: 30px; font-size: 14px; background: #222; border-radius: 4px; padding: 2px 6px; }
+        td { padding: 12px 5px; border-bottom: 1px solid #222; }
+        .wine-name { text-transform: uppercase; font-size: 13px; font-weight: 600; color: #eee; width: 65%; }
+        .marks { color: var(--gold); font-weight: bold; text-align: center; width: 10%; }
+        .total { text-align: right; font-weight: 800; color: white; width: 40px; font-size: 18px; }
 
-        /* Tasto Elimina in fondo */
-        .danger-zone { margin-top: 30px; text-align: center; border-top: 1px dashed #333; padding-top: 20px; }
-        .btn-delete { background: transparent; color: #666; border: 1px solid #333; font-size: 11px; padding: 8px 12px; text-transform: uppercase; margin: auto; }
-        .btn-delete:active { background: var(--red); color: white; border-color: var(--red); }
+        .danger-zone { margin-top: 50px; text-align: center; padding: 20px; border-top: 1px solid #1a1a1a; }
+        .btn-delete { background: transparent; color: #444; border: 1px solid #222; font-size: 10px; padding: 8px 12px; text-transform: uppercase; border-radius: 5px; }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h1>Bodega Personal</h1>
-    <div id="status">Sistema pronto</div>
+    <div class="header">
+        <p class="logo-text">REVERÓN</p>
+        <p class="logo-sub">Bodegas desde 1947</p>
+    </div>
+
+    <div id="status">SISTEMA PRONTO</div>
 
     <div class="btn-group">
         <button id="micBtn" class="btn btn-start" onclick="toggleListening()">🎤 MIC</button>
@@ -83,12 +87,12 @@
         if (MIEI_VINI.includes(result)) {
             if (!db[hoy]) db[hoy] = {};
             db[hoy][result] = (db[hoy][result] || 0) + 1;
-            document.getElementById('status').innerHTML = `<span style="color:var(--green)">Registrato: ${result}</span>`;
+            document.getElementById('status').innerHTML = `<span style="color:var(--green)">AGGIUNTO: ${result}</span>`;
             playBeep();
             localStorage.setItem('cantina_dati', JSON.stringify(db));
             render();
         } else {
-            document.getElementById('status').innerHTML = `Sconosciuto: "${result}"`;
+            document.getElementById('status').innerHTML = `VOCE: "${result}" (NON IN LISTA)`;
         }
     };
 
@@ -96,11 +100,15 @@
         const log = document.getElementById('mainLog');
         log.innerHTML = "";
         const dates = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
-
+        
         dates.forEach(data => {
             let html = `<div class="day-container"><div class="day-title">${data}</div><table>`;
             for (let v in db[data]) {
-                html += `<tr><td class="wine-name">${v}</td><td class="marks">${"X".repeat(db[data][v])}</td><td class="total">${db[data][v]}</td></tr>`;
+                html += `<tr>
+                    <td class="wine-name">${v}</td>
+                    <td class="marks">X</td>
+                    <td class="total">${db[data][v]}</td>
+                </tr>`;
             }
             log.innerHTML += html + `</table></div>`;
         });
@@ -117,11 +125,11 @@
     }
 
     function clearData() {
-        if (confirm("Vuoi davvero cancellare tutto lo storico?")) {
+        if (confirm("Vuoi cancellare tutto l'inventario?")) {
             db = {};
             localStorage.removeItem('cantina_dati');
             render();
-            document.getElementById('status').innerText = "Dati eliminati";
+            document.getElementById('status').innerText = "Memoria svuotata";
         }
     }
 
@@ -131,7 +139,7 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "bodega.csv";
+        link.download = "bodega_reveron.csv";
         link.click();
     }
     render();
