@@ -3,18 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bodega Reverón - App Oficial</title>
+    <title>Bodegas Reverón - Registro de Inventario</title>
     <style>
         :root { --gold: #d4af37; --bg: #0a0a0a; --card: #161616; --red: #ff4757; --green: #2ed573; }
-        body { font-family: -apple-system, sans-serif; background: var(--bg); color: #e0e0e0; padding: 10px; margin: 0; }
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: #e0e0e0; padding: 10px; margin: 0; }
         .container { max-width: 500px; margin: auto; }
         
-        /* LOGO A CAPO DI PAGINA */
+        /* LOGO EN CABECERA */
         .header { text-align: center; padding: 20px 0; background: #000; margin-bottom: 15px; }
         .logo-img { 
             width: 180px; 
             height: auto; 
-            /* Questo filtro rende il logo bianco e "rimuove" lo sfondo nero dell'immagine originale */
             filter: invert(1) grayscale(1) brightness(1.5); 
         }
         
@@ -26,7 +25,7 @@
         .btn-export { border-color: var(--green); color: var(--green); }
         
         .day-container { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 12px; border: 1px solid #222; }
-        .day-title { font-size: 11px; color: var(--gold); margin-bottom: 12px; font-weight: bold; opacity: 0.7; text-align: center; border-bottom: 1px solid #222; padding-bottom: 5px; }
+        .day-title { font-size: 11px; color: var(--gold); margin-bottom: 12px; font-weight: bold; opacity: 0.7; text-align: center; border-bottom: 1px solid #222; padding-bottom: 5px; text-transform: uppercase; }
         
         table { width: 100%; border-collapse: collapse; }
         td { padding: 14px 5px; border-bottom: 1px solid #222; }
@@ -45,17 +44,17 @@
         <img src="https://storage.googleapis.com/generate-v1-0/prod/8580556c-0e70-4f51-8748-0285a85c88c7/image.png" alt="Bodegas Reverón" class="logo-img">
     </div>
 
-    <div id="status">SISTEMA IN ATTESA</div>
+    <div id="status">SISTEMA EN ESPERA</div>
 
     <div class="btn-group">
-        <button id="micBtn" class="btn btn-start" onclick="toggleListening()">🎤 ATTIVA MIC</button>
+        <button id="micBtn" class="btn btn-start" onclick="toggleListening()">🎤 ACTIVAR MIC</button>
         <button class="btn btn-export" onclick="exportToCSV()">📊 EXCEL</button>
     </div>
 
     <div id="mainLog"></div>
 
     <div class="danger-zone">
-        <button class="btn btn-delete" onclick="clearData()">🗑️ Svuota Registro</button>
+        <button class="btn btn-delete" onclick="clearData()">🗑️ Borrar Todo el Registro</button>
     </div>
 </div>
 
@@ -90,12 +89,12 @@
         if (MIEI_VINI.includes(result)) {
             if (!db[hoy]) db[hoy] = {};
             db[hoy][result] = (db[hoy][result] || 0) + 1;
-            document.getElementById('status').innerHTML = `<span style="color:var(--green)">✓ REGISTRATO: ${result}</span>`;
+            document.getElementById('status').innerHTML = `<span style="color:var(--green)">✓ REGISTRADO: ${result}</span>`;
             playBeep();
             localStorage.setItem('cantina_dati', JSON.stringify(db));
             render();
         } else {
-            document.getElementById('status').innerHTML = `VOCE: "${result}" <br><small>(non riconosciuto)</small>`;
+            document.getElementById('status').innerHTML = `VOZ: "${result}" <br><small>(no reconocido)</small>`;
         }
     };
 
@@ -105,7 +104,7 @@
         const dates = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
         
         dates.forEach(data => {
-            let html = `<div class="day-container"><div class="day-title">${data}</div><table>`;
+            let html = `<div class="day-container"><div class="day-title">FECHA: ${data}</div><table>`;
             for (let v in db[data]) {
                 html += `<tr>
                     <td class="wine-name">${v}</td>
@@ -121,18 +120,18 @@
         if (audioCtx.state === 'suspended') audioCtx.resume();
         const btn = document.getElementById('micBtn');
         if (btn.classList.contains('active')) {
-            recognition.stop(); btn.classList.remove('active'); btn.innerText = "🎤 ATTIVA MIC";
+            recognition.stop(); btn.classList.remove('active'); btn.innerText = "🎤 ACTIVAR MIC";
         } else {
-            recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 STOP MIC";
+            recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 PARAR MIC";
         }
     }
 
     function clearData() {
-        if (confirm("Vuoi cancellare tutto lo storico delle bottiglie?")) {
+        if (confirm("¿Seguro que quieres borrar todo el historial?")) {
             db = {};
             localStorage.removeItem('cantina_dati');
             render();
-            document.getElementById('status').innerText = "REGISTRO SVUOTATO";
+            document.getElementById('status').innerText = "REGISTRO VACÍO";
         }
     }
 
@@ -142,7 +141,7 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "BodegasReveron_Inventario.csv";
+        link.download = "Inventario_BodegasReveron.csv";
         link.click();
     }
     render();
