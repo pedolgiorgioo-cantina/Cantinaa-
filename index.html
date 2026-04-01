@@ -3,26 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bodegas Reverón - Registro de Inventario</title>
+    <title>Bodegas Reverón - Registro</title>
     <style>
         :root { --gold: #d4af37; --bg: #0a0a0a; --card: #161616; --red: #ff4757; --green: #2ed573; }
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: var(--bg); color: #e0e0e0; padding: 10px; margin: 0; }
+        body { font-family: -apple-system, sans-serif; background: var(--bg); color: #e0e0e0; padding: 10px; margin: 0; }
         .container { max-width: 500px; margin: auto; }
         
-        /* LOGO EN CABECERA CON IMAGEN INCRUSTADA */
-        .header { text-align: center; padding: 20px 0; background: #000; margin-bottom: 15px; border-radius: 0 0 15px 15px; }
-        .logo-img { 
-            width: 180px; 
-            height: auto; 
-            /* Filtro para hacer el logo negro blanco y brillante */
-            filter: invert(1) grayscale(1) brightness(1.8); 
-        }
+        .header { text-align: center; padding: 20px 0; background: #000; margin-bottom: 10px; border-radius: 0 0 15px 15px; }
+        .logo-img { width: 180px; height: auto; filter: invert(1) grayscale(1) brightness(1.8); }
         
-        #status { font-size: 11px; text-align: center; margin-bottom: 15px; min-height: 35px; color: #888; text-transform: uppercase; letter-spacing: 1px; padding: 0 10px; }
+        /* Stile Menù a Tendina */
+        .dropdown-container { text-align: center; margin-bottom: 20px; }
+        details { background: #1a1a1a; border: 1px solid #333; border-radius: 8px; overflow: hidden; }
+        summary { padding: 10px; cursor: pointer; font-weight: bold; color: var(--gold); font-size: 13px; text-transform: uppercase; list-style: none; }
+        summary::-webkit-details-marker { display: none; }
+        .wine-list-helper { padding: 10px; background: #0a0a0a; text-align: left; font-size: 13px; border-top: 1px solid #333; line-height: 1.6; color: #bbb; }
+
+        #status { font-size: 11px; text-align: center; margin-bottom: 15px; min-height: 35px; color: #888; text-transform: uppercase; letter-spacing: 1px; }
         
         .btn-group { display: flex; gap: 10px; justify-content: center; margin-bottom: 25px; }
-        .btn { padding: 12px 20px; border-radius: 10px; border: 1px solid #333; font-weight: 700; cursor: pointer; font-size: 13px; background: #1a1a1a; color: white; display: flex; align-items: center; gap: 8px; text-transform: uppercase; transition: all 0.2s; }
-        .btn:active { transform: scale(0.98); }
+        .btn { padding: 12px 20px; border-radius: 10px; border: 1px solid #333; font-weight: 700; cursor: pointer; font-size: 13px; background: #1a1a1a; color: white; display: flex; align-items: center; gap: 8px; text-transform: uppercase; }
         .btn-start.active { background: var(--red); border-color: var(--red); box-shadow: 0 0 15px rgba(255, 71, 87, 0.4); }
         .btn-export { border-color: var(--green); color: var(--green); }
         
@@ -35,16 +35,24 @@
         .marks { color: var(--gold); font-weight: bold; text-align: center; font-size: 18px; width: 10%; }
         .total { text-align: right; font-weight: 800; color: var(--gold); width: 45px; font-size: 20px; }
 
-        .danger-zone { margin-top: 60px; text-align: center; padding: 20px; border-top: 1px dashed #333; }
-        .btn-delete { background: transparent; color: #555; border: 1px solid #222; font-size: 10px; padding: 10px 15px; text-transform: uppercase; border-radius: 6px; letter-spacing: 1px; }
-        .btn-delete:active { background: #333; color: #eee; }
+        .danger-zone { margin-top: 60px; text-align: center; padding: 20px; }
+        .btn-delete { background: transparent; color: #555; border: 1px solid #222; font-size: 10px; padding: 10px 15px; text-transform: uppercase; border-radius: 6px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAbFBMVEX///8AAAD8/Pz5+fny8vL29vbv7+/r6+v4+Pj19fXu7u7q6urp6enk5OTi4uLg4ODd3d3a2tra2trZ2dnX19fU1NTT09PR0dHNzcx4eHh3d3d0dHRzc3NwcHBycnJvb29ubm5tba9ycnL5Y5oEAAAEMUlEQVR4nO3bW3OiMBAF4AnIC7wLCO//f60NgoDODmEyaVfXfp8rM5XwzYQE4kRExNXVpS46VdV7FmIqisI4f3F1eK6b9p6IqbTtp7m6fR/HqYqImIrIdI+ru5eNnInIdIsrx2fC7m6eGSkTm7f7unmD3U9CZHwN+Nof2f4hT7v7BftHto9E/B52fI3z7m64m6R9JeRrcWw5Y4vCPhPxtTi0P9f9JeMfxGZ54H3v6X4R8TPY//71t798K9b9+T/mO07C64H38rI89eXbMOf9FmKz3PeuX78b0m8mX4v74wF8Xwz+Z6ffE9K1eF9+9r+3vO55/9PZf0z6M+GrE//H9+f9+O/Y5I+Fr0f/D6fP+/vL+wL8X9ofmP5K+Pof/+XpL/vL2wrwX1pfmP7O8f76+mH6Y+HPm/A9Xf38M/148+XpL4Svx5cvT/hY+Hq4+YWPhatfmF/4Wrj5hY+Fm1/4WLj5hY+Fm1/4WNDuN55/4WNh6zfO//Cx8LWg5TeOf+FrYevfOf6Fr4Wtn378C18LW889fOFrYeu5hy98LWw99/CFr4Wt5x6+8LWw9dzDF74Wtn55+MLXwtZPD1/4Wtj66eELXwtbLz184Wth65eHL3wtbP3y8IWvha2fHr7wtbB1+w9fC1u3//C1sHXzD18LW/f/8LWwdf8PXwtbNz184Wth67mHL3wthP764etv54evv50fvv52fvj62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh62/nh13/f5h8vT/hUePhCunp54Svh6ueFr4WbX/hYuPmFj4WbX/hYuPmFjwXtfuP5Fz4WtH56+MLXwtabL09/IXw9vX15wsc+fA6+j7bXP+d5f395f8D+P+kPAnf58mD0M+Hrgffysvz95f0R+mXyX7E/+H0f+/L3v6vdf68/E3b//gTzHUfezyf996//P4T4b9jvSfrvX/9/iO//L4T3S/v9NOf//vX7G+j//wPhS3vfy9fe/b0QW97vL5vW9vK94N2ffP5N7b4RURXvG7FpP//5Sfs13/mJiKiYiiL6D5Uun15jYvK9AAAAAElFTkSuQmCC" alt="Bodegas Reverón" class="logo-img">
+        <img src="logo.png" alt="Bodegas Reverón" class="logo-img" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='block';">
+        <div id="logo-fallback" style="display:none; color:white; font-size:22px; font-weight:bold; letter-spacing:2px;">BODEGAS REVERÓN</div>
+    </div>
+
+    <div class="dropdown-container">
+        <details>
+            <summary>▼ LISTA DE NOMBRES EXACTOS</summary>
+            <div id="wine-helper" class="wine-list-helper">
+                </div>
+        </details>
     </div>
 
     <div id="status">SISTEMA EN ESPERA</div>
@@ -57,7 +65,7 @@
     <div id="mainLog"></div>
 
     <div class="danger-zone">
-        <button class="btn btn-delete" onclick="clearData()">🗑️ Borrar Todo el Registro</button>
+        <button class="btn btn-delete" onclick="clearData()">🗑️ Borrar Registro</button>
     </div>
 </div>
 
@@ -70,26 +78,13 @@
         "rosado afrutado", "naturalmente dulce"
     ];
 
-    let db = JSON.parse(localStorage.getItem('cantina_dati')) || {};
-    // Verificación y corrección de la estructura de datos antigua (si existe)
-    // Esto asegura que cada entrada sea {vino: cantidad} y no {vino: X...}
-    function fixLegacyData() {
-        let needsFix = false;
-        for (let date in db) {
-            for (let wine in db[date]) {
-                if (typeof db[date][wine] === 'string') {
-                    // Si encontramos una 'X', la convertimos al número de 'X's
-                    db[date][wine] = db[date][wine].length;
-                    needsFix = true;
-                }
-            }
-        }
-        if (needsFix) {
-            localStorage.setItem('cantina_dati', JSON.stringify(db));
-        }
-    }
-    fixLegacyData();
+    // Popola automaticamente il menù a tendina
+    const helper = document.getElementById('wine-helper');
+    MIEI_VINI.forEach(v => {
+        helper.innerHTML += `• ${v.toUpperCase()}<br>`;
+    });
 
+    let db = JSON.parse(localStorage.getItem('cantina_dati')) || {};
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
 
     function playBeep() {
@@ -107,10 +102,8 @@
     recognition.onresult = (event) => {
         const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
         const hoy = new Date().toLocaleDateString('es-ES');
-        
         if (MIEI_VINI.includes(result)) {
             if (!db[hoy]) db[hoy] = {};
-            // Sumamos 1 a la cantidad numérica
             db[hoy][result] = (db[hoy][result] || 0) + 1;
             document.getElementById('status').innerHTML = `<span style="color:var(--green)">✓ REGISTRADO: ${result}</span>`;
             playBeep();
@@ -125,20 +118,11 @@
         const log = document.getElementById('mainLog');
         log.innerHTML = "";
         const dates = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
-        
         dates.forEach(data => {
             let html = `<div class="day-container"><div class="day-title">FECHA: ${data}</div><table>`;
-            // Ordenar vinos alfabéticamente para facilitar la lectura
-            const sortedWines = Object.keys(db[data]).sort();
-            
-            sortedWines.forEach(v => {
-                const quantity = db[data][v];
-                html += `<tr>
-                    <td class="wine-name">${v}</td>
-                    <td class="marks">X</td>
-                    <td class="total">${quantity}</td>
-                </tr>`;
-            });
+            for (let v in db[data]) {
+                html += `<tr><td class="wine-name">${v}</td><td class="marks">X</td><td class="total">${db[data][v]}</td></tr>`;
+            }
             log.innerHTML += html + `</table></div>`;
         });
     }
@@ -148,41 +132,24 @@
         const btn = document.getElementById('micBtn');
         if (btn.classList.contains('active')) {
             recognition.stop(); btn.classList.remove('active'); btn.innerText = "🎤 ACTIVAR MIC";
-            document.getElementById('status').innerText = "SISTEMA EN ESPERA";
         } else {
             recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 PARAR MIC";
-            document.getElementById('status').innerText = "ESCUCHANDO...";
         }
     }
 
     function clearData() {
-        if (confirm("¿Seguro que quieres borrar todo el historial de botellas registradas?")) {
-            db = {};
-            localStorage.removeItem('cantina_dati');
-            render();
-            document.getElementById('status').innerText = "REGISTRO VACÍO";
-        }
+        if (confirm("¿Borrar historial?")) { db = {}; localStorage.removeItem('cantina_dati'); render(); }
     }
 
     function exportToCSV() {
-        if (Object.keys(db).length === 0) {
-            alert("No hay datos para exportar.");
-            return;
-        }
         let csv = "Fecha;Vino;Cantidad\n";
-        for (let d in db) {
-            for (let v in db[d]) {
-                csv += `${d};${v};${db[d][v]}\n`;
-            }
-        }
+        for (let d in db) for (let v in db[d]) csv += `${d};${v};${db[d][v]}\n`;
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "Inventario_BodegasReveron.csv";
+        link.download = "Bodega_Reveron.csv";
         link.click();
     }
-    
-    // Renderizado inicial
     render();
 </script>
 </body>
