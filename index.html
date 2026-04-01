@@ -3,35 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Registro Vocale Mobile</title>
+    <title>Registro Vocale Dinamico</title>
     <style>
         :root { --gold: #f39c12; --bg: #121212; --card: #1e1e1e; }
-        body { font-family: sans-serif; background: var(--bg); color: white; padding: 15px; margin: 0; font-size: 18px; }
+        body { font-family: sans-serif; background: var(--bg); color: white; padding: 15px; margin: 0; }
         .container { max-width: 100%; margin: auto; }
-        h1 { color: var(--gold); font-size: 24px; text-align: center; }
-        #status { color: #888; font-size: 14px; text-align: center; margin-bottom: 20px; height: 20px; }
-        
-        /* PULSANTI GRANDI PER CELLULARE */
+        h1 { color: var(--gold); font-size: 22px; text-align: center; margin-bottom: 5px; text-transform: uppercase; }
+        #status { color: #f39c12; font-weight: bold; text-align: center; margin-bottom: 20px; min-height: 24px; font-size: 14px; border: 1px solid #333; padding: 10px; border-radius: 8px; background: #1a1a1a; }
         .controls { display: flex; flex-direction: column; gap: 10px; margin-bottom: 25px; }
         .btn { padding: 20px; border-radius: 12px; border: none; font-weight: bold; cursor: pointer; font-size: 18px; width: 100%; }
         .btn-start { background: var(--gold); color: black; }
-        .btn-start.active { background: #e74c3c; color: white; box-shadow: 0 0 15px #e74c3c; }
+        .btn-start.active { background: #e74c3c; color: white; box-shadow: 0 0 20px #e74c3c; }
         .btn-export { background: #27ae60; color: white; }
-        
         .day-container { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 15px; border-left: 5px solid var(--gold); }
-        .day-title { font-size: 16px; color: var(--gold); margin-bottom: 10px; font-weight: bold; }
-        
+        .day-title { font-size: 15px; color: var(--gold); margin-bottom: 10px; font-weight: bold; opacity: 0.8; }
         table { width: 100%; border-collapse: collapse; }
-        td { padding: 15px 5px; border-bottom: 1px solid #2a2a2a; font-size: 18px; }
-        .marks { color: var(--gold); letter-spacing: 2px; font-family: monospace; font-size: 22px; }
-        .total { text-align: right; font-weight: bold; color: #888; }
+        td { padding: 15px 5px; border-bottom: 1px solid #2a2a2a; font-size: 17px; }
+        .wine-name { text-transform: capitalize; font-weight: bold; width: 45%; }
+        .marks { color: var(--gold); letter-spacing: 4px; font-family: monospace; font-size: 20px; text-align: center; }
+        .total { text-align: right; font-weight: bold; color: #fff; width: 45px; font-size: 20px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <h1>🍷 REGISTRO VOCALE</h1>
-    <div id="status">Pronto</div>
+    <div id="status">Clicca per iniziare</div>
 
     <div class="controls">
         <button id="micBtn" class="btn btn-start" onclick="toggleListening()">🎤 ATTIVA MICROFONO</button>
@@ -49,7 +46,7 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.connect(gain); gain.connect(audioCtx.destination);
-        osc.frequency.value = 880; gain.gain.value = 0.1;
+        osc.frequency.value = 900; gain.gain.value = 0.1;
         osc.start(); osc.stop(audioCtx.currentTime + 0.1);
     }
 
@@ -59,26 +56,46 @@
 
     recognition.onresult = (event) => {
         const result = event.results[event.results.length - 1][0].transcript.toLowerCase().trim();
-        document.getElementById('status').innerText = "Sentito: " + result;
-        playBeep();
-        saveEntry(result);
-    };
-
-    function saveEntry(nome) {
+        
+        // Pulizia della frase: cerchiamo di capire se ha detto un vino già esistente
         const oggi = new Date().toLocaleDateString('it-IT');
         if (!db[oggi]) db[oggi] = {};
-        db[oggi][nome] = (db[oggi][nome] || 0) + 1;
+
+        let trovato = false;
+        // Controlla se la parola detta è già presente nel database di oggi
+        for (let vinoEsistente in db[oggi]) {
+            if (result.includes(vinoEsistente)) {
+                db[oggi][vinoEsistente]++;
+                trovato = true;
+                document.getElementById('status').innerText = "AGGIORNATO: " + vinoEsistente.toUpperCase();
+                break;
+            }
+        }
+
+        // Se è una parola nuova, la aggiunge come nuova riga
+        if (!trovato) {
+            db[oggi][result] = 1;
+            document.getElementById('status').innerText = "NUOVO: " + result.toUpperCase();
+        }
+
+        playBeep();
         localStorage.setItem('cantina_dati', JSON.stringify(db));
         render();
-    }
+    };
 
     function render() {
         const log = document.getElementById('mainLog');
         log.innerHTML = "";
-        Object.keys(db).reverse().forEach(data => {
-            let html = `<div class="day-container"><div class="day-title">${data}</div><table>`;
+        const dateOrdinate = Object.keys(db).sort((a,b) => new Date(b.split('/').reverse().join('-')) - new Date(a.split('/').reverse().join('-')));
+
+        dateOrdinate.forEach(data => {
+            let html = `<div class="day-container"><div class="day-title">DATA: ${data}</div><table>`;
             for (let b in db[data]) {
-                html += `<tr><td><b>${b}</b></td><td class="marks">${"X".repeat(db[data][b])}</td><td class="total">${db[data][b]}</td></tr>`;
+                html += `<tr>
+                    <td class="wine-name">${b}</td>
+                    <td class="marks">${"X".repeat(db[data][b])}</td>
+                    <td class="total">${db[data][b]}</td>
+                </tr>`;
             }
             log.innerHTML += html + `</table></div>`;
         });
@@ -90,7 +107,7 @@
         if (btn.classList.contains('active')) {
             recognition.stop(); btn.classList.remove('active'); btn.innerText = "🎤 ATTIVA MICROFONO";
         } else {
-            recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 ASCOLTO...";
+            recognition.start(); btn.classList.add('active'); btn.innerText = "🛑 ASCOLTO ATTIVO...";
         }
     }
 
@@ -100,7 +117,7 @@
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.href = URL.createObjectURL(blob);
-        link.download = "inventario.csv";
+        link.download = "cantina.csv";
         link.click();
     }
     render();
